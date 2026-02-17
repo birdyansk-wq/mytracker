@@ -17,6 +17,7 @@ export default async function handler(req, res) {
       method: req.method,
       headers: {
         'Content-Type': req.headers['content-type'] || 'application/json',
+        'ngrok-skip-browser-warning': 'true',
       },
     };
     if (req.method !== 'GET' && req.body != null) {
