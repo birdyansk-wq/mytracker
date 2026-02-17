@@ -91,8 +91,7 @@ def add_daily_goals_api():
     try:
         data = request.json
         goals = data.get('goals', [])
-        today = datetime.now().strftime("%Y-%m-%d")
-        add_daily_goals(today, goals)
+        add_daily_goals(goals)
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500

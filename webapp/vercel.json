@@ -2,6 +2,9 @@
   "buildCommand": null,
   "outputDirectory": ".",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/proxy?path=$1" }
+    {
+      "source": "/api/:path*",
+      "destination": "/api/proxy"
+    }
   ]
 }

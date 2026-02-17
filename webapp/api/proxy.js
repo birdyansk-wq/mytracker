@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     return res.status(502).json({ success: false, error: 'API_URL не настроен в Vercel' });
   }
 
-  const pathStr = (req.query?.path || '').replace(/^\//, '');
+  const pathStr = String(req.query?.path || '').replace(/^\//, '');
   const targetUrl = `${apiUrl.replace(/\/$/, '')}/api/${pathStr}`;
 
   try {
