@@ -1338,13 +1338,28 @@ async def post_init(application):
 
 
 def main():
-    """Запуск бота."""
+    """Запуск бота и API в одном процессе."""
+    import threading
+    from werkzeug.serving import make_server
+
     if not BOT_TOKEN:
         raise ValueError("Укажите BOT_TOKEN в .env")
     if not ALLOWED_USER_ID:
         raise ValueError("Укажите ALLOWED_USER_ID в .env (ваш Telegram ID)")
 
     init_db()
+
+    # Запуск API в фоновом потоке (все логи в одном терминале)
+    try:
+        from bot import api as api_module
+        api_server = make_server('0.0.0.0', 5001, api_module.app, threaded=True)
+        threading.Thread(target=api_server.serve_forever, daemon=True).start()
+        logger.info("API: http://127.0.0.1:5001")
+    except OSError as e:
+        if 'Address already in use' in str(e):
+            logger.warning("Порт 5001 занят — API уже запущен?")
+        else:
+            raise
 
     app = Application.builder().token(BOT_TOKEN).post_init(post_init).build()
 

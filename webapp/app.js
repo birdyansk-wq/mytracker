@@ -174,14 +174,17 @@ async function loadGoals(type) {
     try {
         const url = `${API_BASE_URL}/api/goals/${type}`;
         const res = await fetch(url);
-        log('goals fetch', type, res.status, res.statusText);
-        const data = res.ok ? await res.json() : null;
-        if (!res.ok) logErr('goals fetch failed', type, res.status, await res.text());
+        const text = await res.text();
+        log('goals fetch', type, res.status, text.slice(0, 100));
+        let data = null;
+        try { data = text ? JSON.parse(text) : null; } catch { logErr('JSON parse failed', text.slice(0, 200)); }
+        if (!res.ok) logErr('goals fetch failed', type, res.status, text.slice(0, 200));
 
         if (data?.success && Array.isArray(data.goals)) {
             displayGoals(container, data.goals, type);
         } else {
-            container.innerHTML = '<div class="loading">Ошибка загрузки</div>';
+            const err = data?.error || (res.ok ? 'Неверный формат ответа' : `HTTP ${res.status}`);
+            container.innerHTML = `<div class="loading">Ошибка: ${escapeHtml(err)}</div>`;
         }
     } catch (e) {
         logErr('loadGoals', e);
