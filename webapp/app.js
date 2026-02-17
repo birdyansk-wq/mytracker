@@ -19,11 +19,11 @@ const API_BASE_URL = 'http://localhost:5001';
 let currentGoalTab = 'daily';
 
 // Навигация между экранами
-const screens = ['goals', 'progress', 'alcohol', 'settings'];
+const screens = ['home', 'goals', 'stats', 'settings'];
 const screenTitles = {
+    home: 'Главная',
     goals: 'Цели',
-    progress: 'Прогресс',
-    alcohol: 'Алкоголь',
+    stats: 'Статистика',
     settings: 'Настройки'
 };
 
@@ -51,12 +51,80 @@ function switchScreen(screenName) {
 
 // Загрузка данных для экрана
 async function loadScreenData(screenName) {
-    if (screenName === 'goals') {
+    if (screenName === 'home') {
+        await loadHomeData();
+    } else if (screenName === 'goals') {
         await loadGoals(currentGoalTab);
-    } else if (screenName === 'progress') {
-        await loadProgress();
-    } else if (screenName === 'alcohol') {
-        await loadAlcoholStats();
+    } else if (screenName === 'stats') {
+        await loadStatsData();
+    }
+}
+
+// Загрузка данных для главной
+async function loadHomeData() {
+    try {
+        // Загружаем прогресс и статистику
+        const [progressRes, alcoholRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/api/stats/progress`),
+            fetch(`${API_BASE_URL}/api/stats/alcohol`)
+        ]);
+
+        const progress = await progressRes.json();
+        const alcohol = await alcoholRes.json();
+
+        if (progress.success) {
+            const stats = progress.stats;
+            document.getElementById('home-daily-progress').textContent = 
+                `${stats.daily_goals.completed}/${stats.daily_goals.total}`;
+            document.getElementById('home-energy').textContent = '-'; // Сегодняшняя энергия
+            document.getElementById('home-walk').textContent = '-'; // Сегодняшняя прогулка
+            document.getElementById('home-weekly-goals').textContent = 
+                `${stats.weekly_goals.completed}/${stats.weekly_goals.total}`;
+            document.getElementById('home-avg-energy').textContent = stats.avg_energy.toFixed(1);
+            document.getElementById('home-walks').textContent = stats.walks_count;
+            document.getElementById('home-monthly-goals').textContent = 
+                `${stats.monthly_goals.completed}/${stats.monthly_goals.total}`;
+        }
+
+        if (alcohol.success) {
+            const stats = alcohol.stats;
+            document.getElementById('home-days-sober').textContent = stats.days_sober;
+            document.getElementById('home-money-saved').textContent = 
+                stats.money_saved.toLocaleString('ru-RU') + ' ₽';
+        }
+    } catch (error) {
+        console.error('Error loading home data:', error);
+    }
+}
+
+// Загрузка данных для статистики
+async function loadStatsData() {
+    try {
+        const [progressRes, alcoholRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/api/stats/progress`),
+            fetch(`${API_BASE_URL}/api/stats/alcohol`)
+        ]);
+
+        const progress = await progressRes.json();
+        const alcohol = await alcoholRes.json();
+
+        if (progress.success) {
+            const stats = progress.stats;
+            document.getElementById('stats-avg-energy').textContent = stats.avg_energy.toFixed(1);
+            document.getElementById('stats-walks').textContent = stats.walks_count;
+        }
+
+        if (alcohol.success) {
+            const stats = alcohol.stats;
+            document.getElementById('days-sober').textContent = stats.days_sober;
+            document.getElementById('money-saved').textContent = 
+                stats.money_saved.toLocaleString('ru-RU') + ' ₽';
+            document.getElementById('episodes-month').textContent = stats.episodes_this_month;
+            document.getElementById('spent-month').textContent = 
+                stats.money_spent_this_month.toLocaleString('ru-RU') + ' ₽';
+        }
+    } catch (error) {
+        console.error('Error loading stats data:', error);
     }
 }
 
@@ -152,53 +220,17 @@ async function toggleGoal(element) {
         } else {
             // Вибрация при успехе
             tg.HapticFeedback.impactOccurred('light');
+            
+            // Обновляем главную страницу если она открыта
+            const currentScreen = document.querySelector('.screen.active').id;
+            if (currentScreen === 'screen-home') {
+                await loadHomeData();
+            }
         }
     } catch (error) {
         console.error('Error toggling goal:', error);
         element.classList.toggle('completed');
         tg.showAlert('Ошибка соединения');
-    }
-}
-
-// Загрузка прогресса
-async function loadProgress() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/stats/progress`);
-        const data = await response.json();
-
-        if (data.success) {
-            const stats = data.stats;
-            document.getElementById('avg-energy').textContent = stats.avg_energy.toFixed(1);
-            document.getElementById('walks-count').textContent = stats.walks_count;
-            document.getElementById('daily-progress').textContent = 
-                `${stats.daily_goals.completed}/${stats.daily_goals.total}`;
-            document.getElementById('weekly-progress').textContent = 
-                `${stats.weekly_goals.completed}/${stats.weekly_goals.total}`;
-            document.getElementById('monthly-progress').textContent = 
-                `${stats.monthly_goals.completed}/${stats.monthly_goals.total}`;
-        }
-    } catch (error) {
-        console.error('Error loading progress:', error);
-    }
-}
-
-// Загрузка статистики алкоголя
-async function loadAlcoholStats() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/stats/alcohol`);
-        const data = await response.json();
-
-        if (data.success) {
-            const stats = data.stats;
-            document.getElementById('days-sober').textContent = stats.days_sober;
-            document.getElementById('money-saved').textContent = 
-                stats.money_saved.toLocaleString('ru-RU') + ' ₽';
-            document.getElementById('episodes-month').textContent = stats.episodes_this_month;
-            document.getElementById('spent-month').textContent = 
-                stats.money_spent_this_month.toLocaleString('ru-RU') + ' ₽';
-        }
-    } catch (error) {
-        console.error('Error loading alcohol stats:', error);
     }
 }
 
@@ -261,6 +293,12 @@ saveGoalBtn.addEventListener('click', async () => {
             modal.classList.remove('active');
             tg.HapticFeedback.notificationOccurred('success');
             await loadGoals(currentGoalTab);
+            
+            // Обновляем главную если нужно
+            const currentScreen = document.querySelector('.screen.active').id;
+            if (currentScreen === 'screen-home') {
+                await loadHomeData();
+            }
         } else {
             tg.showAlert('Ошибка при сохранении');
         }
@@ -328,4 +366,4 @@ modal.addEventListener('click', (e) => {
 });
 
 // Начальная загрузка
-switchScreen('goals');
+switchScreen('home');

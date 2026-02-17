@@ -11,13 +11,73 @@
     <div id="app">
         <!-- Заголовок -->
         <header class="header">
-            <h1 id="page-title">Цели</h1>
+            <h1 id="page-title">Главная</h1>
         </header>
 
         <!-- Контент экранов -->
         <main class="content">
+            <!-- Экран: Главная -->
+            <div id="screen-home" class="screen active">
+                <!-- Сегодняшний прогресс -->
+                <section class="section">
+                    <h2 class="section-title">Сегодня</h2>
+                    <div class="progress-card">
+                        <div class="progress-item">
+                            <span class="progress-label">Дневные задачи</span>
+                            <span class="progress-value" id="home-daily-progress">-</span>
+                        </div>
+                        <div class="progress-item">
+                            <span class="progress-label">Энергия</span>
+                            <span class="progress-value" id="home-energy">-</span>
+                        </div>
+                        <div class="progress-item">
+                            <span class="progress-label">Прогулка</span>
+                            <span class="progress-value" id="home-walk">-</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Недельный прогресс -->
+                <section class="section">
+                    <h2 class="section-title">Эта неделя</h2>
+                    <div class="stats-grid-home">
+                        <div class="stat-card-home">
+                            <div class="stat-value-home" id="home-weekly-goals">-</div>
+                            <div class="stat-label-home">Недельные цели</div>
+                        </div>
+                        <div class="stat-card-home">
+                            <div class="stat-value-home" id="home-avg-energy">-</div>
+                            <div class="stat-label-home">Средняя энергия</div>
+                        </div>
+                        <div class="stat-card-home">
+                            <div class="stat-value-home" id="home-walks">-</div>
+                            <div class="stat-label-home">Прогулки</div>
+                        </div>
+                        <div class="stat-card-home">
+                            <div class="stat-value-home" id="home-days-sober">-</div>
+                            <div class="stat-label-home">Дней без алкоголя</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Месячный прогресс -->
+                <section class="section">
+                    <h2 class="section-title">Этот месяц</h2>
+                    <div class="progress-card">
+                        <div class="progress-item">
+                            <span class="progress-label">Месячные цели</span>
+                            <span class="progress-value" id="home-monthly-goals">-</span>
+                        </div>
+                        <div class="progress-item">
+                            <span class="progress-label">Экономия на алкоголе</span>
+                            <span class="progress-value" id="home-money-saved">-</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
             <!-- Экран: Цели -->
-            <div id="screen-goals" class="screen active">
+            <div id="screen-goals" class="screen">
                 <div class="tabs">
                     <button class="tab active" data-tab="daily">Сегодня</button>
                     <button class="tab" data-tab="weekly">Неделя</button>
@@ -49,40 +109,11 @@
                 </button>
             </div>
 
-            <!-- Экран: Прогресс -->
-            <div id="screen-progress" class="screen">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">Средняя энергия</div>
-                        <div class="stat-value" id="avg-energy">-</div>
-                        <div class="stat-subtitle">за неделю</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Прогулки</div>
-                        <div class="stat-value" id="walks-count">-</div>
-                        <div class="stat-subtitle">за неделю</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Дневные цели</div>
-                        <div class="stat-value" id="daily-progress">-</div>
-                        <div class="stat-subtitle">выполнено</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Недельные цели</div>
-                        <div class="stat-value" id="weekly-progress">-</div>
-                        <div class="stat-subtitle">выполнено</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Месячные цели</div>
-                        <div class="stat-value" id="monthly-progress">-</div>
-                        <div class="stat-subtitle">выполнено</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Экран: Алкоголь -->
-            <div id="screen-alcohol" class="screen">
-                <div class="alcohol-main">
+            <!-- Экран: Алкоголь и Энергия -->
+            <div id="screen-stats" class="screen">
+                <!-- Алкоголь -->
+                <section class="section">
+                    <h2 class="section-title">Алкоголь</h2>
                     <div class="alcohol-hero">
                         <div class="alcohol-emoji">🎉</div>
                         <div class="alcohol-days" id="days-sober">-</div>
@@ -93,18 +124,35 @@
                         <div class="savings-amount" id="money-saved">-</div>
                         <div class="savings-label">сэкономлено рублей</div>
                     </div>
-                </div>
 
-                <div class="alcohol-stats">
-                    <div class="alcohol-stat">
-                        <span class="alcohol-stat-label">Эпизодов в этом месяце:</span>
-                        <span class="alcohol-stat-value" id="episodes-month">-</span>
+                    <div class="stats-list">
+                        <div class="stat-row">
+                            <span class="stat-row-label">Эпизодов в этом месяце</span>
+                            <span class="stat-row-value" id="episodes-month">-</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-row-label">Потрачено в этом месяце</span>
+                            <span class="stat-row-value" id="spent-month">- ₽</span>
+                        </div>
                     </div>
-                    <div class="alcohol-stat">
-                        <span class="alcohol-stat-label">Потрачено в этом месяце:</span>
-                        <span class="alcohol-stat-value" id="spent-month">- ₽</span>
+                </section>
+
+                <!-- Энергия -->
+                <section class="section">
+                    <h2 class="section-title">Энергия и активность</h2>
+                    <div class="stats-grid-home">
+                        <div class="stat-card-home">
+                            <div class="stat-value-home" id="stats-avg-energy">-</div>
+                            <div class="stat-label-home">Средняя энергия</div>
+                            <div class="stat-hint">за неделю</div>
+                        </div>
+                        <div class="stat-card-home">
+                            <div class="stat-value-home" id="stats-walks">-</div>
+                            <div class="stat-label-home">Прогулки</div>
+                            <div class="stat-hint">за неделю</div>
+                        </div>
                     </div>
-                </div>
+                </section>
             </div>
 
             <!-- Экран: Настройки -->
@@ -169,24 +217,24 @@
 
         <!-- Нижняя навигация -->
         <nav class="bottom-nav">
-            <button class="nav-item active" data-screen="goals">
+            <button class="nav-item active" data-screen="home">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Главная</span>
+            </button>
+            <button class="nav-item" data-screen="goals">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                     <path d="M9 11L12 14L22 4M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <span>Цели</span>
             </button>
-            <button class="nav-item" data-screen="progress">
+            <button class="nav-item" data-screen="stats">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                     <path d="M22 12H18L15 21L9 3L6 12H2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <span>Прогресс</span>
-            </button>
-            <button class="nav-item" data-screen="alcohol">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2L9 12H15L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M9 12V20C9 21.1046 10.3431 22 12 22C13.6569 22 15 21.1046 15 20V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>Алкоголь</span>
+                <span>Статистика</span>
             </button>
             <button class="nav-item" data-screen="settings">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
