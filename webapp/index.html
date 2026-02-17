@@ -85,28 +85,26 @@
                 </div>
 
                 <div class="tab-content">
-                    <!-- Дневные цели -->
                     <div id="daily-goals" class="goals-list active">
                         <div class="loading">Загрузка...</div>
                     </div>
-
-                    <!-- Недельные цели -->
                     <div id="weekly-goals" class="goals-list">
                         <div class="loading">Загрузка...</div>
                     </div>
-
-                    <!-- Месячные цели -->
                     <div id="monthly-goals" class="goals-list">
                         <div class="loading">Загрузка...</div>
                     </div>
                 </div>
 
-                <button class="btn-add" id="add-goal-btn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    Добавить цель
-                </button>
+                <!-- Добавить цель по одной — inline -->
+                <div class="add-goal-inline">
+                    <input type="text" id="new-goal-input" placeholder="Новая цель..." maxlength="200" aria-label="Текст новой цели" />
+                    <button type="button" class="btn-add-inline" id="add-single-goal-btn" aria-label="Добавить цель">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <!-- Экран: Алкоголь и Энергия -->
@@ -194,28 +192,6 @@
             </div>
         </main>
 
-        <!-- Модалка добавления цели -->
-        <div id="add-goal-modal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 id="modal-title">Добавить цель</h2>
-                    <button class="modal-close" id="close-modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <label for="goal-input" class="visually-hidden">Введите цели, каждая с новой строки</label>
-                    <textarea 
-                        id="goal-input" 
-                        placeholder="Введите цели (каждая с новой строки)"
-                        rows="5"
-                        aria-label="Введите цели, каждая с новой строки"
-                    ></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" id="cancel-modal">Отмена</button>
-                    <button class="btn btn-primary" id="save-goal">Сохранить</button>
-                </div>
-            </div>
-        </div>
 
         <!-- Нижняя навигация -->
         <nav class="bottom-nav">

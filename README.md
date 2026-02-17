@@ -73,7 +73,7 @@ python3 -m bot.main
 
 ### Запуск API для Mini App:
 
-Mini App работает через простой Flask API. Нужно запустить оба процесса:
+Mini App работает через Flask API. Бот и API используют одну БД — изменения синхронизируются.
 
 **Терминал 1 — Бот:**
 ```bash
@@ -85,26 +85,24 @@ python3 -m bot.main
 python3 -m bot.api
 ```
 
-API слушает на `http://localhost:5000`. Для локальной разработки можно использовать ngrok.
+API слушает на `http://localhost:5001`. На localhost Mini App вызывает API напрямую.
 
-### Деплой (например, Vercel):
+### Деплой Mini App (Vercel):
 
-**Фронтенд (webapp):**
-1. Создай проект на [vercel.com](https://vercel.com)
-2. Подключи репозиторий, укажи `webapp` как корневую папку
-3. После деплоя добавь в `.env`:
+1. Создай проект на [vercel.com](https://vercel.com), Root Directory = `webapp`
+2. Добавь переменную **API_URL** в Vercel (Project → Settings → Environment Variables):
+   - Значение: URL твоего API (см. ниже)
+3. Добавь в `.env` бота:
    ```
    WEBAPP_URL=https://твой-проект.vercel.app
    BOT_USERNAME=имя_твоего_бота
    ```
+4. Перезапусти бота — появится кнопка **«Открыть»**
 
-**Backend (API):**
-- Деплой Flask API на отдельный хостинг (Railway, Render, Heroku)
-- Обнови `API_BASE_URL` в `webapp/app.js` на адрес твоего API
+**Чтобы цели работали в Telegram**, API должен быть доступен из интернета:
 
-4. Перезапусти бота — появится синяя кнопка **«Открыть»** рядом с полем ввода
-
-Без деплоя Mini App бот работает как раньше, кнопка просто не появится.
+- **ngrok** (для разработки): `ngrok http 5001` → получишь URL, укажи его в API_URL в Vercel
+- **Railway / Render**: задеплой API и БД, получи URL, укажи в API_URL
 
 ## Функционал
 

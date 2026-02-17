@@ -49,8 +49,10 @@ if (tg) {
     tg.onEvent('themeChanged', applyTheme);
 }
 
-// API
-const API_BASE_URL = 'http://localhost:5001';
+// API: на localhost — прямой вызов, на Vercel — через /api (proxy → API_URL)
+const API_BASE_URL = /localhost|127\.0\.0\.1/.test(window.location?.hostname || '')
+    ? 'http://localhost:5001'
+    : '';
 
 let currentGoalTab = 'daily';
 
@@ -227,26 +229,12 @@ function escapeHtml(text) {
     return String(text).replace(/[&<>"']/g, m => map[m]);
 }
 
-// Модалка
-const modal = document.getElementById('add-goal-modal');
-const goalInput = document.getElementById('goal-input');
-const modalTitle = document.getElementById('modal-title');
-const modalTitles = { daily: 'Дневные цели', weekly: 'Недельные цели', monthly: 'Месячные цели' };
-
-document.getElementById('add-goal-btn')?.addEventListener('click', () => {
-    if (modalTitle) modalTitle.textContent = modalTitles[currentGoalTab] || 'Добавить цель';
-    if (goalInput) goalInput.value = '';
-    modal?.classList.add('active');
-});
-
-document.getElementById('close-modal')?.addEventListener('click', () => modal?.classList.remove('active'));
-document.getElementById('cancel-modal')?.addEventListener('click', () => modal?.classList.remove('active'));
-
-document.getElementById('save-goal')?.addEventListener('click', async () => {
-    const text = goalInput?.value?.trim() || '';
-    const goals = text.split('\n').map(g => g.trim()).filter(Boolean);
-    if (!goals.length) {
-        tg?.showAlert?.('Введите хотя бы одну цель');
+// Добавить цель по одной
+async function addSingleGoal() {
+    const input = document.getElementById('new-goal-input');
+    const text = input?.value?.trim() || '';
+    if (!text) {
+        tg?.showAlert?.('Введите текст цели');
         return;
     }
 
@@ -254,12 +242,12 @@ document.getElementById('save-goal')?.addEventListener('click', async () => {
         const res = await fetch(`${API_BASE_URL}/api/goals/${currentGoalTab}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ goals })
+            body: JSON.stringify({ goals: [text] })
         });
         const data = res.ok ? await res.json() : null;
 
         if (data?.success) {
-            modal?.classList.remove('active');
+            input.value = '';
             tg?.HapticFeedback?.notificationOccurred?.('success');
             await loadGoals(currentGoalTab);
             if (document.querySelector('.screen.active')?.id === 'screen-home') loadHomeData();
@@ -269,9 +257,12 @@ document.getElementById('save-goal')?.addEventListener('click', async () => {
     } catch (e) {
         tg?.showAlert?.('Ошибка соединения');
     }
-});
+}
 
-modal?.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('active'); });
+document.getElementById('add-single-goal-btn')?.addEventListener('click', addSingleGoal);
+document.getElementById('new-goal-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); addSingleGoal(); }
+});
 
 // Навигация
 document.querySelectorAll('.nav-item').forEach(item => {
