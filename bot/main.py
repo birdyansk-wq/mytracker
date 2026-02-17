@@ -774,9 +774,10 @@ async def cmd_week(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_goals(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Команда /goals — показывает цели на неделю с чекбоксами."""
+    logger.info("cmd /goals")
     if not is_allowed_user(update.effective_user.id):
         return
-    
+
     goals = get_weekly_goals()
     
     if not goals:
@@ -805,9 +806,10 @@ async def cmd_goals(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_month_goals(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Команда /month_goals — показывает цели на месяц с чекбоксами."""
+    logger.info("cmd /month_goals")
     if not is_allowed_user(update.effective_user.id):
         return
-    
+
     goals = get_monthly_goals()
     
     if not goals:
@@ -836,9 +838,10 @@ async def cmd_month_goals(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def cmd_today_goals(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Команда /today_goals — показывает задачи на сегодня с чекбоксами."""
+    logger.info("cmd /today_goals")
     if not is_allowed_user(update.effective_user.id):
         return
-    
+
     goals = get_daily_goals()
     
     if not goals:
@@ -1307,12 +1310,12 @@ async def handle_edit_question_callback(update: Update, context: ContextTypes.DE
 async def handle_web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработка данных из Telegram Mini App."""
     user_id = update.effective_user.id
-    if user_id != ALLOWED_USER_ID:
-        return
-    
-    # Получаем данные от Mini App
     data = update.message.web_app_data.data
-    
+    logger.info("Mini App → data=%s user=%s", data, user_id)
+    if user_id != ALLOWED_USER_ID:
+        logger.warning("Mini App: user %s not allowed", user_id)
+        return
+
     if data == "edit_questions":
         # Открываем редактирование вопросов
         await cmd_questions(update, context)
@@ -1320,6 +1323,7 @@ async def handle_web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE
         # Сбрасываем данные
         await cmd_reset(update, context)
     else:
+        logger.info("Mini App: unknown data=%s", data)
         await update.message.reply_text("✅ Данные получены!")
 
 

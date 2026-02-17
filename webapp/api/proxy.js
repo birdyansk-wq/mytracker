@@ -13,6 +13,7 @@ export default async function handler(req, res) {
   if (Array.isArray(pathStr)) pathStr = pathStr.join('/');
   pathStr = String(pathStr || '').replace(/^\//, '');
   const targetUrl = `${apiUrl.replace(/\/$/, '')}/api/${pathStr}`;
+  console.log('[Proxy]', req.method, pathStr || '(empty)', '→', targetUrl);
 
   try {
     const options = {
@@ -28,6 +29,7 @@ export default async function handler(req, res) {
 
     const response = await fetch(targetUrl, options);
     const data = await response.text();
+    console.log('[Proxy]', response.status, pathStr || '(empty)');
     try {
       res.status(response.status).json(JSON.parse(data));
     } catch {

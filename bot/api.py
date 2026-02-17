@@ -3,8 +3,15 @@
 Обрабатывает запросы из Mini App для работы с данными
 """
 
+import logging
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+
+logging.basicConfig(
+    format="%(asctime)s [API] %(levelname)s: %(message)s",
+    level=logging.INFO,
+)
+logger = logging.getLogger(__name__)
 import hmac
 import hashlib
 from urllib.parse import parse_qs
@@ -18,7 +25,18 @@ from bot.database import (
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-CORS(app)  # Разрешаем запросы с других доменов
+CORS(app)
+
+
+@app.before_request
+def log_request():
+    logger.info("→ %s %s", request.method, request.path)
+
+
+@app.after_request
+def log_response(response):
+    logger.info("← %s %s → %d", request.method, request.path, response.status_code)
+    return response
 
 
 def verify_telegram_web_app_data(init_data: str) -> bool:
@@ -60,6 +78,7 @@ def get_daily_goals_api():
     try:
         today = datetime.now().strftime("%Y-%m-%d")
         goals = get_daily_goals(today)
+        logger.info("daily goals: %d шт.", len(goals))
         return jsonify({
             'success': True,
             'goals': [
@@ -72,6 +91,7 @@ def get_daily_goals_api():
             ]
         })
     except Exception as e:
+        logger.exception("get_daily_goals error")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
@@ -80,8 +100,10 @@ def toggle_daily_goal_api(goal_id):
     """Переключить статус дневной цели"""
     try:
         toggle_daily_goal_completion(goal_id)
+        logger.info("toggle daily goal id=%s", goal_id)
         return jsonify({'success': True})
     except Exception as e:
+        logger.exception("toggle_daily_goal error")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
@@ -89,11 +111,13 @@ def toggle_daily_goal_api(goal_id):
 def add_daily_goals_api():
     """Добавить дневные цели"""
     try:
-        data = request.json
+        data = request.json or {}
         goals = data.get('goals', [])
+        logger.info("add_daily_goals: %s", goals)
         add_daily_goals(goals)
         return jsonify({'success': True})
     except Exception as e:
+        logger.exception("add_daily_goals error")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 

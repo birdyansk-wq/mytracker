@@ -54,6 +54,10 @@ const API_BASE_URL = /localhost|127\.0\.0\.1/.test(window.location?.hostname || 
     ? 'http://localhost:5001'
     : '';
 
+// Логи для отладки (видны в DevTools или tg://web_app_debug)
+const log = (...a) => console.log('[MiniApp]', ...a);
+const logErr = (...a) => console.error('[MiniApp]', ...a);
+
 let currentGoalTab = 'daily';
 
 const screens = ['home', 'goals', 'stats', 'settings'];
@@ -87,13 +91,17 @@ async function loadScreenData(screenName) {
 }
 
 async function loadHomeData() {
+    log('loadHomeData, API=', API_BASE_URL || '(relative)');
     try {
         const [progressRes, alcoholRes] = await Promise.all([
             fetch(`${API_BASE_URL}/api/stats/progress`),
             fetch(`${API_BASE_URL}/api/stats/alcohol`)
         ]);
+        log('home progress', progressRes.status, 'alcohol', alcoholRes.status);
         const progress = progressRes.ok ? await progressRes.json() : null;
         const alcohol = alcoholRes.ok ? await alcoholRes.json() : null;
+        if (!progressRes.ok) logErr('progress fetch failed', progressRes.status, await progressRes.text());
+        if (!alcoholRes.ok) logErr('alcohol fetch failed', alcoholRes.status, await alcoholRes.text());
 
         if (progress?.success) {
             const s = progress.stats;
@@ -112,7 +120,7 @@ async function loadHomeData() {
             setText('home-money-saved', s.money_saved != null ? `${Number(s.money_saved).toLocaleString('ru-RU')} ₽` : '-');
         }
     } catch (e) {
-        console.error('loadHomeData', e);
+        logErr('loadHomeData', e);
     }
 }
 
@@ -158,13 +166,17 @@ function switchGoalTab(tabName) {
 }
 
 async function loadGoals(type) {
+    log('loadGoals', type);
     const container = document.getElementById(`${type}-goals`);
     if (!container) return;
     container.innerHTML = '<div class="loading">Загрузка...</div>';
 
     try {
-        const res = await fetch(`${API_BASE_URL}/api/goals/${type}`);
+        const url = `${API_BASE_URL}/api/goals/${type}`;
+        const res = await fetch(url);
+        log('goals fetch', type, res.status, res.statusText);
         const data = res.ok ? await res.json() : null;
+        if (!res.ok) logErr('goals fetch failed', type, res.status, await res.text());
 
         if (data?.success && Array.isArray(data.goals)) {
             displayGoals(container, data.goals, type);
@@ -172,7 +184,7 @@ async function loadGoals(type) {
             container.innerHTML = '<div class="loading">Ошибка загрузки</div>';
         }
     } catch (e) {
-        console.error('loadGoals', e);
+        logErr('loadGoals', e);
         container.innerHTML = '<div class="loading">Ошибка соединения</div>';
     }
 }
@@ -233,6 +245,7 @@ function escapeHtml(text) {
 async function addSingleGoal() {
     const input = document.getElementById('new-goal-input');
     const text = input?.value?.trim() || '';
+    log('addSingleGoal', currentGoalTab, text);
     if (!text) {
         tg?.showAlert?.('Введите текст цели');
         return;
@@ -247,6 +260,7 @@ async function addSingleGoal() {
         const data = res.ok ? await res.json() : null;
 
         if (data?.success) {
+            log('addSingleGoal ok');
             input.value = '';
             tg?.HapticFeedback?.notificationOccurred?.('success');
             await loadGoals(currentGoalTab);
@@ -255,6 +269,7 @@ async function addSingleGoal() {
             tg?.showAlert?.('Ошибка при сохранении');
         }
     } catch (e) {
+        logErr('addSingleGoal', e);
         tg?.showAlert?.('Ошибка соединения');
     }
 }
@@ -297,4 +312,5 @@ document.getElementById('help-btn')?.addEventListener('click', () => {
 });
 
 // Старт
+log('init, API_BASE_URL=', API_BASE_URL || '(relative)');
 switchScreen('home');
