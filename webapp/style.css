@@ -1,3 +1,8 @@
+/**
+ * Telegram Mini App — стили по гайдлайнам
+ * Только CSS-переменные из themeParams, без кастомных цветов
+ */
+
 * {
     margin: 0;
     padding: 0;
@@ -5,52 +10,58 @@
 }
 
 :root {
-    --tg-theme-bg-color: #ffffff;
-    --tg-theme-text-color: #000000;
-    --tg-theme-hint-color: #999999;
-    --tg-theme-link-color: #2481cc;
-    --tg-theme-button-color: #2481cc;
-    --tg-theme-button-text-color: #ffffff;
-    --tg-theme-secondary-bg-color: #f4f4f5;
-    --border-color: #e5e5e5;
-    --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --tg-bg-color: #ffffff;
+    --tg-secondary-bg-color: #f4f4f5;
+    --tg-text-color: #000000;
+    --tg-hint-color: #999999;
+    --tg-link-color: #2481cc;
+    --tg-button-color: #2481cc;
+    --tg-button-text-color: #ffffff;
+    --tg-header-bg-color: #ffffff;
+    --tg-accent-text-color: #2481cc;
+    --tg-section-bg-color: #f4f4f5;
+    --tg-section-header-text-color: #999999;
+    --tg-subtitle-text-color: #999999;
+    --tg-destructive-text-color: #ff3b30;
+    --tg-section-separator-color: rgba(0, 0, 0, 0.08);
+    --tg-bottom-bar-bg-color: #ffffff;
 }
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--tg-theme-bg-color);
-    color: var(--tg-theme-text-color);
-    line-height: 1.5;
+    background-color: var(--tg-bg-color);
+    color: var(--tg-text-color);
+    line-height: 1.4;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    min-height: 100vh;
 }
 
 #app {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    padding-bottom: 70px;
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
 }
 
-/* Header */
+/* Header — как в Telegram */
 .header {
     position: sticky;
     top: 0;
-    background: var(--tg-theme-bg-color);
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border-color);
+    background: var(--tg-header-bg-color);
+    padding: 12px 16px;
+    padding-top: calc(12px + env(safe-area-inset-top));
     z-index: 10;
 }
 
 .header h1 {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 600;
+    color: var(--tg-text-color);
 }
 
-/* Content */
+/* Контент */
 .content {
     flex: 1;
-    padding: 0 0 20px;
 }
 
 .screen {
@@ -61,118 +72,132 @@ body {
     display: block;
 }
 
-/* Section */
+/* Секции — section_bg_color, section_header_text_color */
 .section {
-    padding: 20px;
-    border-bottom: 8px solid var(--tg-theme-secondary-bg-color);
-}
-
-.section:last-child {
-    border-bottom: none;
+    background: var(--tg-section-bg-color);
+    padding: 12px 16px 16px;
+    margin-bottom: 8px;
 }
 
 .section-title {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--tg-section-header-text-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
 }
 
-/* Progress Card */
-.progress-card {
-    background: var(--tg-theme-secondary-bg-color);
-    border-radius: 16px;
-    padding: 16px;
+/* Список как в Telegram — list items с разделителями */
+.list-item {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 12px;
+    padding: 12px 16px;
+    background: var(--tg-bg-color);
+    border-bottom: 1px solid var(--tg-section-separator-color);
+    min-height: 48px;
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+.list-item:active {
+    background: var(--tg-secondary-bg-color);
+}
+
+/* Прогресс-карточка */
+.progress-card {
+    background: var(--tg-bg-color);
+    border-radius: 12px;
+    overflow: hidden;
 }
 
 .progress-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--tg-section-separator-color);
+}
+
+.progress-item:last-child {
+    border-bottom: none;
 }
 
 .progress-label {
-    font-size: 15px;
-    color: var(--tg-theme-hint-color);
+    font-size: 16px;
+    color: var(--tg-text-color);
 }
 
 .progress-value {
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--tg-theme-button-color);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--tg-accent-text-color);
 }
 
-/* Stats Grid for Home */
+/* Сетка статистики */
 .stats-grid-home {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 8px;
 }
 
 .stat-card-home {
-    background: var(--tg-theme-secondary-bg-color);
-    padding: 20px;
-    border-radius: 16px;
+    background: var(--tg-bg-color);
+    padding: 16px;
+    border-radius: 12px;
     text-align: center;
 }
 
 .stat-value-home {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--tg-theme-button-color);
-    margin-bottom: 8px;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--tg-accent-text-color);
+    margin-bottom: 4px;
 }
 
 .stat-label-home {
     font-size: 13px;
-    color: var(--tg-theme-text-color);
-    font-weight: 500;
+    color: var(--tg-subtitle-text-color);
 }
 
 .stat-hint {
-    font-size: 11px;
-    color: var(--tg-theme-hint-color);
-    margin-top: 4px;
+    font-size: 12px;
+    color: var(--tg-hint-color);
+    margin-top: 2px;
 }
 
-/* Tabs */
+/* Табы */
 .tabs {
     display: flex;
-    gap: 8px;
-    padding: 20px 20px 0;
-    background: var(--tg-theme-secondary-bg-color);
-    margin: 0;
-    border-radius: 0;
+    gap: 4px;
+    padding: 12px 16px;
+    background: var(--tg-bg-color);
 }
 
 .tab {
     flex: 1;
-    padding: 10px 16px;
+    padding: 10px 12px;
     border: none;
-    background: transparent;
-    color: var(--tg-theme-hint-color);
+    background: var(--tg-secondary-bg-color);
+    color: var(--tg-hint-color);
     font-size: 15px;
     font-weight: 500;
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s;
 }
 
 .tab.active {
-    background: var(--tg-theme-bg-color);
-    color: var(--tg-theme-text-color);
-    box-shadow: var(--shadow);
+    background: var(--tg-button-color);
+    color: var(--tg-button-text-color);
 }
 
-/* Goals List */
 .tab-content {
-    position: relative;
-    min-height: 200px;
-    padding: 20px;
-    background: var(--tg-theme-secondary-bg-color);
+    padding: 12px 16px;
+    min-height: 120px;
+    background: var(--tg-bg-color);
 }
 
 .goals-list {
@@ -185,47 +210,35 @@ body {
 
 .loading {
     text-align: center;
-    padding: 40px 20px;
-    color: var(--tg-theme-hint-color);
+    padding: 32px;
+    color: var(--tg-hint-color);
+    font-size: 15px;
 }
 
+/* Цели — list items */
 .goal-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px;
-    background: var(--tg-theme-bg-color);
-    border-radius: 12px;
-    margin-bottom: 12px;
     cursor: pointer;
-    transition: all 0.2s;
-}
-
-.goal-item:active {
-    transform: scale(0.98);
 }
 
 .goal-checkbox {
-    width: 24px;
-    height: 24px;
-    border: 2px solid var(--tg-theme-button-color);
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--tg-button-color);
     border-radius: 50%;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
-}
-
-.goal-item.completed .goal-checkbox {
-    background: var(--tg-theme-button-color);
+    transition: background 0.2s;
 }
 
 .goal-checkbox svg {
-    width: 14px;
-    height: 14px;
-    color: white;
     display: none;
+    color: var(--tg-button-text-color);
+}
+
+.goal-item.completed .goal-checkbox {
+    background: var(--tg-button-color);
 }
 
 .goal-item.completed .goal-checkbox svg {
@@ -234,114 +247,109 @@ body {
 
 .goal-text {
     flex: 1;
-    font-size: 15px;
+    font-size: 16px;
+    color: var(--tg-text-color);
 }
 
 .goal-item.completed .goal-text {
     text-decoration: line-through;
-    opacity: 0.5;
+    color: var(--tg-hint-color);
 }
 
 .empty-state {
     text-align: center;
-    padding: 60px 20px;
-    color: var(--tg-theme-hint-color);
-}
-
-.empty-state-icon {
-    font-size: 64px;
-    margin-bottom: 16px;
+    padding: 48px 24px;
 }
 
 .empty-state-text {
     font-size: 17px;
     font-weight: 500;
+    color: var(--tg-text-color);
     margin-bottom: 8px;
 }
 
 .empty-state-hint {
-    font-size: 14px;
+    font-size: 15px;
+    color: var(--tg-hint-color);
 }
 
-/* Add Goal Button */
+/* Кнопка добавления — button_color по гайдлайнам */
 .btn-add {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    margin: 20px;
+    margin: 16px;
     padding: 14px;
-    background: var(--tg-theme-button-color);
-    color: var(--tg-theme-button-text-color);
+    background: var(--tg-button-color);
+    color: var(--tg-button-text-color);
     border: none;
     border-radius: 12px;
     font-size: 16px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
 }
 
 .btn-add:active {
-    transform: scale(0.98);
     opacity: 0.8;
 }
 
-/* Alcohol Section */
+/* Алкоголь — без градиентов, только theme colors */
 .alcohol-hero {
     text-align: center;
-    padding: 20px 0;
+    padding: 24px 0;
 }
 
 .alcohol-emoji {
-    font-size: 64px;
-    margin-bottom: 16px;
+    font-size: 48px;
+    margin-bottom: 12px;
 }
 
 .alcohol-days {
-    font-size: 56px;
-    font-weight: 800;
-    color: var(--tg-theme-button-color);
-    margin-bottom: 8px;
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--tg-accent-text-color);
     line-height: 1;
 }
 
 .alcohol-label {
-    font-size: 16px;
-    color: var(--tg-theme-hint-color);
+    font-size: 15px;
+    color: var(--tg-subtitle-text-color);
+    margin-top: 8px;
 }
 
 .alcohol-savings {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 24px;
-    border-radius: 16px;
-    color: white;
+    background: var(--tg-secondary-bg-color);
+    padding: 20px;
+    border-radius: 12px;
     text-align: center;
-    margin-top: 20px;
+    margin-top: 16px;
 }
 
 .savings-amount {
-    font-size: 40px;
+    font-size: 32px;
     font-weight: 700;
-    margin-bottom: 8px;
+    color: var(--tg-accent-text-color);
 }
 
 .savings-label {
-    font-size: 15px;
-    opacity: 0.9;
+    font-size: 14px;
+    color: var(--tg-subtitle-text-color);
+    margin-top: 4px;
 }
 
 .stats-list {
-    margin-top: 20px;
-    background: var(--tg-theme-secondary-bg-color);
-    border-radius: 16px;
-    padding: 16px;
+    margin-top: 16px;
+    background: var(--tg-bg-color);
+    border-radius: 12px;
+    overflow: hidden;
 }
 
 .stat-row {
     display: flex;
     justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border-color);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--tg-section-separator-color);
 }
 
 .stat-row:last-child {
@@ -350,159 +358,133 @@ body {
 
 .stat-row-label {
     font-size: 15px;
-    color: var(--tg-theme-hint-color);
+    color: var(--tg-subtitle-text-color);
 }
 
 .stat-row-value {
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 500;
+    color: var(--tg-text-color);
 }
 
-/* Settings Screen */
+/* Настройки — list items как в Telegram */
 .settings-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 20px;
+    padding: 8px 0;
 }
 
 .settings-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px;
-    background: var(--tg-theme-secondary-bg-color);
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
     width: 100%;
+    padding: 12px 16px;
+    background: var(--tg-bg-color);
+    border: none;
+    border-bottom: 1px solid var(--tg-section-separator-color);
     text-align: left;
+    cursor: pointer;
+}
+
+.settings-item:last-child {
+    border-bottom: none;
 }
 
 .settings-item:active {
-    transform: scale(0.98);
-    opacity: 0.7;
+    background: var(--tg-secondary-bg-color);
 }
 
 .settings-item-content {
     display: flex;
     align-items: center;
     gap: 12px;
-    flex: 1;
 }
 
 .settings-item-icon {
-    font-size: 28px;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.settings-item-text {
-    flex: 1;
+    font-size: 24px;
 }
 
 .settings-item-title {
     font-size: 16px;
     font-weight: 500;
-    margin-bottom: 2px;
+    color: var(--tg-text-color);
 }
 
 .settings-item-subtitle {
-    font-size: 13px;
-    color: var(--tg-theme-hint-color);
+    font-size: 14px;
+    color: var(--tg-subtitle-text-color);
+    margin-top: 2px;
 }
 
 .settings-item-arrow {
-    font-size: 24px;
-    color: var(--tg-theme-hint-color);
+    font-size: 20px;
+    color: var(--tg-hint-color);
 }
 
-/* Modal */
+/* Модалка */
 .modal {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
     z-index: 100;
-    animation: fadeIn 0.2s;
+    align-items: flex-end;
 }
 
 .modal.active {
     display: flex;
-    align-items: flex-end;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
 }
 
 .modal-content {
-    background: var(--tg-theme-bg-color);
     width: 100%;
-    border-radius: 20px 20px 0 0;
-    animation: slideUp 0.3s;
-}
-
-@keyframes slideUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
+    max-height: 80vh;
+    background: var(--tg-bg-color);
+    border-radius: 16px 16px 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 .modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px;
-    border-bottom: 1px solid var(--border-color);
+    padding: 16px;
+    border-bottom: 1px solid var(--tg-section-separator-color);
 }
 
 .modal-header h2 {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
 }
 
 .modal-close {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border: none;
     background: transparent;
-    font-size: 28px;
-    color: var(--tg-theme-hint-color);
+    font-size: 24px;
+    color: var(--tg-hint-color);
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .modal-body {
-    padding: 20px;
+    padding: 16px;
 }
 
 .modal-body textarea {
     width: 100%;
     padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border: 1px solid var(--tg-section-separator-color);
+    border-radius: 8px;
     font-family: inherit;
-    font-size: 15px;
+    font-size: 16px;
+    background: var(--tg-bg-color);
+    color: var(--tg-text-color);
     resize: vertical;
-    background: var(--tg-theme-secondary-bg-color);
-    color: var(--tg-theme-text-color);
 }
 
 .modal-footer {
     display: flex;
     gap: 12px;
-    padding: 20px;
-    border-top: 1px solid var(--border-color);
+    padding: 16px;
 }
 
 .btn {
@@ -513,33 +495,28 @@ body {
     font-size: 16px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn:active {
-    transform: scale(0.98);
 }
 
 .btn-primary {
-    background: var(--tg-theme-button-color);
-    color: var(--tg-theme-button-text-color);
+    background: var(--tg-button-color);
+    color: var(--tg-button-text-color);
 }
 
 .btn-secondary {
-    background: var(--tg-theme-secondary-bg-color);
-    color: var(--tg-theme-text-color);
+    background: var(--tg-secondary-bg-color);
+    color: var(--tg-text-color);
 }
 
-/* Bottom Navigation */
+/* Нижняя навигация — bottom_bar_bg_color */
 .bottom-nav {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     display: flex;
-    background: var(--tg-theme-bg-color);
-    border-top: 1px solid var(--border-color);
-    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    background: var(--tg-bottom-bar-bg-color);
+    padding: 8px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
     z-index: 20;
 }
 
@@ -552,10 +529,9 @@ body {
     padding: 8px;
     border: none;
     background: transparent;
-    color: var(--tg-theme-hint-color);
+    color: var(--tg-hint-color);
     cursor: pointer;
-    transition: all 0.2s;
-    border-radius: 12px;
+    border-radius: 8px;
 }
 
 .nav-item svg {
@@ -565,13 +541,23 @@ body {
 
 .nav-item span {
     font-size: 11px;
-    font-weight: 500;
 }
 
 .nav-item.active {
-    color: var(--tg-theme-button-color);
+    color: var(--tg-button-color);
 }
 
 .nav-item:active {
-    background: var(--tg-theme-secondary-bg-color);
+    background: var(--tg-secondary-bg-color);
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
 }

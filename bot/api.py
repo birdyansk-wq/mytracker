@@ -64,9 +64,9 @@ def get_daily_goals_api():
             'success': True,
             'goals': [
                 {
-                    'id': g[0],
-                    'text': g[2],
-                    'completed': bool(g[3])
+                    'id': g['id'],
+                    'text': g['task_text'],
+                    'completed': bool(g['is_completed'])
                 }
                 for g in goals
             ]
@@ -107,9 +107,9 @@ def get_weekly_goals_api():
             'success': True,
             'goals': [
                 {
-                    'id': g[0],
-                    'text': g[2],
-                    'completed': bool(g[3])
+                    'id': g['id'],
+                    'text': g['task_text'],
+                    'completed': bool(g['is_completed'])
                 }
                 for g in goals
             ]
@@ -149,9 +149,9 @@ def get_monthly_goals_api():
             'success': True,
             'goals': [
                 {
-                    'id': g[0],
-                    'text': g[2],
-                    'completed': bool(g[3])
+                    'id': g['id'],
+                    'text': g['task_text'],
+                    'completed': bool(g['is_completed'])
                 }
                 for g in goals
             ]
@@ -190,22 +190,22 @@ def get_progress_stats():
         
         # Подсчет статистики
         total_days = len(logs)
-        energy_sum = sum(log[6] for log in logs if log[6])
-        avg_energy = round(energy_sum / total_days, 1) if total_days > 0 else 0
+        energy_values = [log.get('energy') for log in logs if log.get('energy') is not None]
+        avg_energy = round(sum(energy_values) / total_days, 1) if total_days > 0 else 0
         
-        walks = sum(1 for log in logs if log[5])
+        walks = sum(1 for log in logs if log.get('walk'))
         
         # Цели
         daily_goals = get_daily_goals(datetime.now().strftime("%Y-%m-%d"))
-        daily_completed = sum(1 for g in daily_goals if g[3])
+        daily_completed = sum(1 for g in daily_goals if g['is_completed'])
         daily_total = len(daily_goals)
         
         weekly_goals = get_weekly_goals()
-        weekly_completed = sum(1 for g in weekly_goals if g[3])
+        weekly_completed = sum(1 for g in weekly_goals if g['is_completed'])
         weekly_total = len(weekly_goals)
         
         monthly_goals = get_monthly_goals()
-        monthly_completed = sum(1 for g in monthly_goals if g[3])
+        monthly_completed = sum(1 for g in monthly_goals if g['is_completed'])
         monthly_total = len(monthly_goals)
         
         return jsonify({
@@ -231,22 +231,21 @@ def get_alcohol_stats():
         # Находим последний день с алкоголем
         last_alcohol_day = None
         for log in reversed(logs):
-            if log[4]:  # alcohol column
-                last_alcohol_day = datetime.strptime(log[1], "%Y-%m-%d")
+            if log.get('alcohol'):
+                last_alcohol_day = datetime.strptime(log['date'], "%Y-%m-%d")
                 break
         
         # Считаем дни без алкоголя
         if last_alcohol_day:
             days_sober = (datetime.now() - last_alcohol_day).days
         else:
-            # Если вообще не было записей с алкоголем
-            days_sober = len(logs)
+            days_sober = len(logs) if logs else 0
         
         # Считаем экономию (3000 за эпизод)
         money_saved = days_sober * (3000 / 3.5)  # примерно 2-3 раза в неделю
         
         # Статистика за месяц
-        alcohol_episodes = sum(1 for log in logs if log[4])
+        alcohol_episodes = sum(1 for log in logs if log.get('alcohol'))
         money_spent = alcohol_episodes * 3000
         
         return jsonify({
