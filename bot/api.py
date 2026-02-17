@@ -1,0 +1,266 @@
+"""
+Простой Flask API для Telegram Mini App
+Обрабатывает запросы из Mini App для работы с данными
+"""
+
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import hmac
+import hashlib
+from urllib.parse import parse_qs
+from bot.config import BOT_TOKEN
+from bot.database import (
+    get_daily_goals, toggle_daily_goal_completion, add_daily_goals,
+    get_weekly_goals, toggle_goal_completion, add_weekly_goals,
+    get_monthly_goals, toggle_monthly_goal_completion, add_monthly_goals,
+    get_today_log, get_last_n_days
+)
+from datetime import datetime, timedelta
+
+app = Flask(__name__)
+CORS(app)  # Разрешаем запросы с других доменов
+
+
+def verify_telegram_web_app_data(init_data: str) -> bool:
+    """
+    Проверяет подлинность данных от Telegram Mini App
+    """
+    try:
+        parsed = parse_qs(init_data)
+        hash_value = parsed.get('hash', [''])[0]
+        
+        # Создаем строку для проверки
+        data_check_string = '\n'.join([
+            f"{k}={v[0]}" 
+            for k, v in sorted(parsed.items()) 
+            if k != 'hash'
+        ])
+        
+        # Вычисляем hash
+        secret_key = hmac.new(
+            "WebAppData".encode(),
+            BOT_TOKEN.encode(),
+            hashlib.sha256
+        ).digest()
+        
+        calculated_hash = hmac.new(
+            secret_key,
+            data_check_string.encode(),
+            hashlib.sha256
+        ).hexdigest()
+        
+        return calculated_hash == hash_value
+    except:
+        return False
+
+
+@app.route('/api/goals/daily', methods=['GET'])
+def get_daily_goals_api():
+    """Получить дневные цели"""
+    try:
+        today = datetime.now().strftime("%Y-%m-%d")
+        goals = get_daily_goals(today)
+        return jsonify({
+            'success': True,
+            'goals': [
+                {
+                    'id': g[0],
+                    'text': g[2],
+                    'completed': bool(g[3])
+                }
+                for g in goals
+            ]
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/goals/daily/<int:goal_id>/toggle', methods=['POST'])
+def toggle_daily_goal_api(goal_id):
+    """Переключить статус дневной цели"""
+    try:
+        toggle_daily_goal_completion(goal_id)
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/goals/daily', methods=['POST'])
+def add_daily_goals_api():
+    """Добавить дневные цели"""
+    try:
+        data = request.json
+        goals = data.get('goals', [])
+        today = datetime.now().strftime("%Y-%m-%d")
+        add_daily_goals(today, goals)
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/goals/weekly', methods=['GET'])
+def get_weekly_goals_api():
+    """Получить недельные цели"""
+    try:
+        goals = get_weekly_goals()
+        return jsonify({
+            'success': True,
+            'goals': [
+                {
+                    'id': g[0],
+                    'text': g[2],
+                    'completed': bool(g[3])
+                }
+                for g in goals
+            ]
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/goals/weekly/<int:goal_id>/toggle', methods=['POST'])
+def toggle_weekly_goal_api(goal_id):
+    """Переключить статус недельной цели"""
+    try:
+        toggle_goal_completion(goal_id)
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/goals/weekly', methods=['POST'])
+def add_weekly_goals_api():
+    """Добавить недельные цели"""
+    try:
+        data = request.json
+        goals = data.get('goals', [])
+        add_weekly_goals(goals)
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/goals/monthly', methods=['GET'])
+def get_monthly_goals_api():
+    """Получить месячные цели"""
+    try:
+        goals = get_monthly_goals()
+        return jsonify({
+            'success': True,
+            'goals': [
+                {
+                    'id': g[0],
+                    'text': g[2],
+                    'completed': bool(g[3])
+                }
+                for g in goals
+            ]
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/goals/monthly/<int:goal_id>/toggle', methods=['POST'])
+def toggle_monthly_goal_api(goal_id):
+    """Переключить статус месячной цели"""
+    try:
+        toggle_monthly_goal_completion(goal_id)
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/goals/monthly', methods=['POST'])
+def add_monthly_goals_api():
+    """Добавить месячные цели"""
+    try:
+        data = request.json
+        goals = data.get('goals', [])
+        add_monthly_goals(goals)
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/stats/progress', methods=['GET'])
+def get_progress_stats():
+    """Получить статистику прогресса"""
+    try:
+        logs = get_last_n_days(7)
+        
+        # Подсчет статистики
+        total_days = len(logs)
+        energy_sum = sum(log[6] for log in logs if log[6])
+        avg_energy = round(energy_sum / total_days, 1) if total_days > 0 else 0
+        
+        walks = sum(1 for log in logs if log[5])
+        
+        # Цели
+        daily_goals = get_daily_goals(datetime.now().strftime("%Y-%m-%d"))
+        daily_completed = sum(1 for g in daily_goals if g[3])
+        daily_total = len(daily_goals)
+        
+        weekly_goals = get_weekly_goals()
+        weekly_completed = sum(1 for g in weekly_goals if g[3])
+        weekly_total = len(weekly_goals)
+        
+        monthly_goals = get_monthly_goals()
+        monthly_completed = sum(1 for g in monthly_goals if g[3])
+        monthly_total = len(monthly_goals)
+        
+        return jsonify({
+            'success': True,
+            'stats': {
+                'avg_energy': avg_energy,
+                'walks_count': walks,
+                'daily_goals': {'completed': daily_completed, 'total': daily_total},
+                'weekly_goals': {'completed': weekly_completed, 'total': weekly_total},
+                'monthly_goals': {'completed': monthly_completed, 'total': monthly_total}
+            }
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/stats/alcohol', methods=['GET'])
+def get_alcohol_stats():
+    """Получить статистику по алкоголю"""
+    try:
+        logs = get_last_n_days(30)
+        
+        # Находим последний день с алкоголем
+        last_alcohol_day = None
+        for log in reversed(logs):
+            if log[4]:  # alcohol column
+                last_alcohol_day = datetime.strptime(log[1], "%Y-%m-%d")
+                break
+        
+        # Считаем дни без алкоголя
+        if last_alcohol_day:
+            days_sober = (datetime.now() - last_alcohol_day).days
+        else:
+            # Если вообще не было записей с алкоголем
+            days_sober = len(logs)
+        
+        # Считаем экономию (3000 за эпизод)
+        money_saved = days_sober * (3000 / 3.5)  # примерно 2-3 раза в неделю
+        
+        # Статистика за месяц
+        alcohol_episodes = sum(1 for log in logs if log[4])
+        money_spent = alcohol_episodes * 3000
+        
+        return jsonify({
+            'success': True,
+            'stats': {
+                'days_sober': days_sober,
+                'money_saved': int(money_saved),
+                'episodes_this_month': alcohol_episodes,
+                'money_spent_this_month': money_spent
+            }
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5001, debug=True)

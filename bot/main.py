@@ -1304,6 +1304,25 @@ async def handle_edit_question_callback(update: Update, context: ContextTypes.DE
         await query.message.edit_text(text, reply_markup=keyboard)
 
 
+async def handle_web_app_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Обработка данных из Telegram Mini App."""
+    user_id = update.effective_user.id
+    if user_id != ALLOWED_USER_ID:
+        return
+    
+    # Получаем данные от Mini App
+    data = update.message.web_app_data.data
+    
+    if data == "edit_questions":
+        # Открываем редактирование вопросов
+        await cmd_questions(update, context)
+    elif data == "reset":
+        # Сбрасываем данные
+        await cmd_reset(update, context)
+    else:
+        await update.message.reply_text("✅ Данные получены!")
+
+
 async def post_init(application):
     """Настройка кнопки Mini App при запуске."""
     if WEBAPP_URL and BOT_USERNAME:
@@ -1334,6 +1353,7 @@ def main():
     app.add_handler(CommandHandler("questions", cmd_questions))
     app.add_handler(CommandHandler("test", cmd_test))
     app.add_handler(CommandHandler("reset", cmd_reset))
+    app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, handle_web_app_data))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     app.add_handler(CallbackQueryHandler(handle_callback))
 

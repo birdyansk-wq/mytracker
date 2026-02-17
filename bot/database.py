@@ -519,3 +519,29 @@ def reset_all_data():
     conn.execute("UPDATE user_settings SET onboarding_completed = 0")
     conn.commit()
     conn.close()
+
+
+def get_today_log():
+    """Получить запись за сегодня."""
+    conn = get_connection()
+    today = date.today().isoformat()
+    row = conn.execute(
+        "SELECT * FROM daily_logs WHERE date = ?",
+        (today,)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def get_last_n_days(n=7):
+    """Получить записи за последние N дней."""
+    conn = get_connection()
+    today = date.today()
+    rows = conn.execute(
+        """SELECT * FROM daily_logs
+           WHERE date >= date(?, ? || ' days') AND date <= ?
+           ORDER BY date DESC""",
+        (today.isoformat(), f'-{n}', today.isoformat())
+    ).fetchall()
+    conn.close()
+    return [dict(row) for row in rows]

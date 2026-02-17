@@ -1,83 +1,203 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="var(--tg-theme-bg-color, #1c1c1e)">
-  <title>Трекер привычек</title>
-  <script src="https://telegram.org/js/telegram-web-app.js?59"></script>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Habit Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-  <div class="app">
-    <header class="header">
-      <h1>Трекер привычек</h1>
-      <p class="subtitle">Меню и быстрый доступ</p>
-    </header>
+    <div id="app">
+        <!-- Заголовок -->
+        <header class="header">
+            <h1 id="page-title">Цели</h1>
+        </header>
 
-    <main class="content">
-      <section class="section">
-        <h2>Команды</h2>
-        <div class="menu-list">
-          <a class="menu-item" href="#" data-cmd="today">
-            <span class="icon">📅</span>
-            <span class="label">/today</span>
-            <span class="desc">Ответы за сегодня</span>
-          </a>
-          <a class="menu-item" href="#" data-cmd="today_goals">
-            <span class="icon">☀️</span>
-            <span class="label">/today_goals</span>
-            <span class="desc">Задачи на сегодня</span>
-          </a>
-          <a class="menu-item" href="#" data-cmd="goals">
-            <span class="icon">📋</span>
-            <span class="label">/goals</span>
-            <span class="desc">Цели на неделю</span>
-          </a>
-          <a class="menu-item" href="#" data-cmd="month_goals">
-            <span class="icon">🗓</span>
-            <span class="label">/month_goals</span>
-            <span class="desc">Цели на месяц</span>
-          </a>
-          <a class="menu-item" href="#" data-cmd="week">
-            <span class="icon">📊</span>
-            <span class="label">/week</span>
-            <span class="desc">Статистика за 7 дней</span>
-          </a>
-          <a class="menu-item" href="#" data-cmd="questions">
-            <span class="icon">✏️</span>
-            <span class="label">/questions</span>
-            <span class="desc">Настроить вопросы</span>
-          </a>
-          <a class="menu-item" href="#" data-cmd="start">
-            <span class="icon">📈</span>
-            <span class="label">/start</span>
-            <span class="desc">Прогресс</span>
-          </a>
-          <a class="menu-item secondary" href="#" data-cmd="reset">
-            <span class="icon">🔄</span>
-            <span class="label">/reset</span>
-            <span class="desc">Сбросить данные</span>
-          </a>
+        <!-- Контент экранов -->
+        <main class="content">
+            <!-- Экран: Цели -->
+            <div id="screen-goals" class="screen active">
+                <div class="tabs">
+                    <button class="tab active" data-tab="daily">Сегодня</button>
+                    <button class="tab" data-tab="weekly">Неделя</button>
+                    <button class="tab" data-tab="monthly">Месяц</button>
+                </div>
+
+                <div class="tab-content">
+                    <!-- Дневные цели -->
+                    <div id="daily-goals" class="goals-list active">
+                        <div class="loading">Загрузка...</div>
+                    </div>
+
+                    <!-- Недельные цели -->
+                    <div id="weekly-goals" class="goals-list">
+                        <div class="loading">Загрузка...</div>
+                    </div>
+
+                    <!-- Месячные цели -->
+                    <div id="monthly-goals" class="goals-list">
+                        <div class="loading">Загрузка...</div>
+                    </div>
+                </div>
+
+                <button class="btn-add" id="add-goal-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Добавить цель
+                </button>
+            </div>
+
+            <!-- Экран: Прогресс -->
+            <div id="screen-progress" class="screen">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Средняя энергия</div>
+                        <div class="stat-value" id="avg-energy">-</div>
+                        <div class="stat-subtitle">за неделю</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Прогулки</div>
+                        <div class="stat-value" id="walks-count">-</div>
+                        <div class="stat-subtitle">за неделю</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Дневные цели</div>
+                        <div class="stat-value" id="daily-progress">-</div>
+                        <div class="stat-subtitle">выполнено</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Недельные цели</div>
+                        <div class="stat-value" id="weekly-progress">-</div>
+                        <div class="stat-subtitle">выполнено</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Месячные цели</div>
+                        <div class="stat-value" id="monthly-progress">-</div>
+                        <div class="stat-subtitle">выполнено</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Экран: Алкоголь -->
+            <div id="screen-alcohol" class="screen">
+                <div class="alcohol-main">
+                    <div class="alcohol-hero">
+                        <div class="alcohol-emoji">🎉</div>
+                        <div class="alcohol-days" id="days-sober">-</div>
+                        <div class="alcohol-label">дней без алкоголя</div>
+                    </div>
+
+                    <div class="alcohol-savings">
+                        <div class="savings-amount" id="money-saved">-</div>
+                        <div class="savings-label">сэкономлено рублей</div>
+                    </div>
+                </div>
+
+                <div class="alcohol-stats">
+                    <div class="alcohol-stat">
+                        <span class="alcohol-stat-label">Эпизодов в этом месяце:</span>
+                        <span class="alcohol-stat-value" id="episodes-month">-</span>
+                    </div>
+                    <div class="alcohol-stat">
+                        <span class="alcohol-stat-label">Потрачено в этом месяце:</span>
+                        <span class="alcohol-stat-value" id="spent-month">- ₽</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Экран: Настройки -->
+            <div id="screen-settings" class="screen">
+                <div class="settings-list">
+                    <button class="settings-item" id="edit-questions-btn">
+                        <div class="settings-item-content">
+                            <div class="settings-item-icon">❓</div>
+                            <div class="settings-item-text">
+                                <div class="settings-item-title">Редактировать вопросы</div>
+                                <div class="settings-item-subtitle">Изменить вопросы опроса</div>
+                            </div>
+                        </div>
+                        <div class="settings-item-arrow">›</div>
+                    </button>
+
+                    <button class="settings-item" id="reset-btn">
+                        <div class="settings-item-content">
+                            <div class="settings-item-icon">🔄</div>
+                            <div class="settings-item-text">
+                                <div class="settings-item-title">Сбросить данные</div>
+                                <div class="settings-item-subtitle">Начать заново</div>
+                            </div>
+                        </div>
+                        <div class="settings-item-arrow">›</div>
+                    </button>
+
+                    <button class="settings-item" id="help-btn">
+                        <div class="settings-item-content">
+                            <div class="settings-item-icon">ℹ️</div>
+                            <div class="settings-item-text">
+                                <div class="settings-item-title">Помощь</div>
+                                <div class="settings-item-subtitle">Как пользоваться ботом</div>
+                            </div>
+                        </div>
+                        <div class="settings-item-arrow">›</div>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Модалка добавления цели -->
+        <div id="add-goal-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modal-title">Добавить цель</h2>
+                    <button class="modal-close" id="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <textarea 
+                        id="goal-input" 
+                        placeholder="Введите цели (каждая с новой строки)"
+                        rows="5"
+                    ></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="cancel-modal">Отмена</button>
+                    <button class="btn btn-primary" id="save-goal">Сохранить</button>
+                </div>
+            </div>
         </div>
-      </section>
 
-      <section class="section">
-        <h2>Расписание</h2>
-        <div class="info-block">
-          <p><strong>9:00</strong> — утренний опрос, цели дня</p>
-          <p><strong>21:00</strong> — вечерний опрос</p>
-          <p><strong>Пт 22:00</strong> — проверка целей недели</p>
-          <p><strong>Конец месяца</strong> — проверка целей месяца</p>
-          <p><strong>Вс 14:00</strong> — недельная сводка</p>
-        </div>
-      </section>
+        <!-- Нижняя навигация -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-screen="goals">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 11L12 14L22 4M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Цели</span>
+            </button>
+            <button class="nav-item" data-screen="progress">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M22 12H18L15 21L9 3L6 12H2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Прогресс</span>
+            </button>
+            <button class="nav-item" data-screen="alcohol">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L9 12H15L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 12V20C9 21.1046 10.3431 22 12 22C13.6569 22 15 21.1046 15 20V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Алкоголь</span>
+            </button>
+            <button class="nav-item" data-screen="settings">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 1V3M12 21V23M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M1 12H3M21 12H23M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>Настройки</span>
+            </button>
+        </nav>
+    </div>
 
-      <footer class="footer">
-        <p>Нажми на команду — откроется чат с ботом. Отправь её для выполнения.</p>
-      </footer>
-    </main>
-  </div>
-  <script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
